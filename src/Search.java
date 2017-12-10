@@ -44,7 +44,7 @@ public class Search {
 
 			@Override
 			public int compare(Node o1, Node o2) {
-				if(o1.h_A_star() > o2.h_A_star())
+				if (o1.h_A_star() > o2.h_A_star())
 					return 0;
 				else
 					return 1;
@@ -52,13 +52,12 @@ public class Search {
 		});
 		closed = null;
 		n_closed = 0;
- 		goal = null;
+		goal = null;
 		numNodesExpanded = 0;
 
 		// ...
 
 	}
-
 
 	// THIS METHOD INITIALIZES THE CLOSED LIST
 	private void initialize_closed() {
@@ -72,7 +71,7 @@ public class Search {
 	// YOU CAN CHANGE IT.
 	private boolean visited(Node n) {
 		for (int i = 0; i < n_closed; i++) {
-			if(closed[i].hasSameState(n))////////////////////////// this is must change #_#
+			if (closed[i].hasSameState(n))////////////////////////// this is must change #_#
 				return true;
 		}
 		return false;
@@ -88,7 +87,7 @@ public class Search {
 				closed[i] = closed[i + 1];
 		} else {
 			closed[n_closed] = n;
-			n_closed++;			
+			n_closed++;
 		}
 	}
 
@@ -110,7 +109,7 @@ public class Search {
 			}
 			nodesList = current.expand();
 			numNodesExpanded++;
-			if(!visited(current))
+			if (!visited(current))
 				mark_as_visited(current);
 			for (int i = 0; i < 5; i++) { // we have 5 actions
 				if (nodesList[i] != null && !visited(nodesList[i])) {
@@ -122,6 +121,7 @@ public class Search {
 		return null; // goal not found
 
 	}
+
 	public Node A_star() {
 		initialize_closed();
 		numNodesExpanded = 0;
@@ -137,7 +137,7 @@ public class Search {
 			}
 			nodesList = current.expand();
 			numNodesExpanded++;
-			if(!visited(current))
+			if (!visited(current))
 				mark_as_visited(current);
 			for (int i = 0; i < 5; i++) { // we have 5 actions
 				if (nodesList[i] != null && !visited(nodesList[i])) {
@@ -148,7 +148,45 @@ public class Search {
 		}
 		return null; // goal not found
 	}
-	
+
+	public State hill_climbing(){
+		Node current = root;
+		Node neighbor = random_move(current);
+		while(neighbor.h_A_star() > current.h_A_star()) {
+			if(neighbor.h_A_star() <= current.h_A_star())
+				return current.getState();
+			neighbor = random_move(current);
+		}
+		return neighbor.getState();
+	}
+
+	private Node random_move(Node n) {
+		Node[] nodes = n.expand();
+		boolean status_action = false;
+		int i = -1;
+		while (!status_action) {
+			 i = new Random().nextInt(nodes.length);
+			switch (i) {
+			case 0:
+				status_action = nodes[i].getState().move_N();
+				break;
+			case 1:
+				status_action = nodes[i].getState().move_S();
+				break;
+			case 2:
+				status_action = nodes[i].getState().move_W();
+				break;
+			case 3:
+				status_action = nodes[i].getState().move_E();
+				break;
+			case 4:
+				status_action = nodes[i].getState().recharge();
+				break;
+			}
+		}
+		return nodes[i];
+	}
+
 	// GIVEN THE GOAL NODE, THIS METHOD WILL EXTRACT
 	// THE SOLUTION, WHICH IS A SEQUENCE OF ACTIONS.
 	public String[] extractSolution(Node goalNode) {
@@ -160,7 +198,7 @@ public class Search {
 			n = n.getParent();
 			len++;
 		}
-		
+
 		// declare an array of strings
 		String sol[] = new String[len - 1];
 
@@ -201,8 +239,9 @@ public class Search {
 	public void setGoal(Node goal) {
 		this.goal = goal;
 	}
+
 	public int getNumNodesExpanded() {
 		return numNodesExpanded;
 	}
-	
+
 }
