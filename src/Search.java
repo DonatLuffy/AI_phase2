@@ -8,6 +8,7 @@
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.PriorityBlockingQueue;
 
 public class Search {
 
@@ -39,7 +40,16 @@ public class Search {
 	Search(State init_state) {
 		root = new Node(init_state, null, 0, -1, 0); // make the root node
 		fringe = new ArrayBlockingQueue<>(FRINGE_MAX_SIZE); // initialize Queue
-		fringeA = new PriorityQueue<>(FRINGE_MAX_SIZE);
+		fringeA = new PriorityQueue<>(FRINGE_MAX_SIZE, new Comparator<Node>() {
+
+			@Override
+			public int compare(Node o1, Node o2) {
+				if(o1.h_A_star() > o2.h_A_star())
+					return 0;
+				else
+					return 1;
+			}
+		});
 		closed = null;
 		n_closed = 0;
  		goal = null;
@@ -94,7 +104,7 @@ public class Search {
 		fringe.offer(current);
 		while (!fringe.isEmpty()) {
 			current = fringe.poll();
-			
+
 			if (current.isGoal()) {
 				return current;
 			}
@@ -121,7 +131,7 @@ public class Search {
 		fringeA.offer(current);
 		while (!fringeA.isEmpty()) {
 			current = fringeA.poll();
-			
+
 			if (current.isGoal()) {
 				return current;
 			}

@@ -14,21 +14,16 @@ public class Agent {
 
 		//allstudents2.map.txt , simple2.map.txt
 		State s1 = new State("simple2.map.txt");
-//		Node ns = new Node(s1, null, 0, -1, 0);
+		s1.setBattery(1000);
+		Node n1 = new Node(s1, null, 0, -1, 0);
 //		s1.run("simple.map.command.txt", "finalMap.txt", "logsFile.txt");
 		Search s = new Search(s1);
-		Node n = s.doSearch();
+		Node n = s.A_star();
 		if(n != null)//this condition must be there, because may be the battrey is 
 		s.displaySolution(n);
+		System.out.println(s.getNumNodesExpanded());
 		
-		PriorityQueue<Node> p = new PriorityQueue<>(3);
-		Node n1 = new Node(s1, null, 0, -1, 0);
-		p.offer(n1);
-		Node n2 = new Node(new State(3,3,10), n1, 0, 0, 1);
-		p.offer(n2);
-		Node n3 = new Node(new State(3,3,11), n2, 0, 1, 2);
-		p.offer(n3);
-		p.poll().getState().display();
+		
 		int n_args = args.length;
 		if (n_args!=5) {
 			System.out.println("ERROR: ILLEGAL NUMBER OF ARGUMENTS:");
