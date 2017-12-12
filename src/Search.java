@@ -8,7 +8,6 @@
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.PriorityBlockingQueue;
 
 public class Search {
 
@@ -20,7 +19,7 @@ public class Search {
 	private Node root; // the root node
 	private Queue<Node> fringe; // the BFS frings: change it for the other searches.
 	private PriorityQueue<Node> fringeA;
-	private Node goal; // the goal node
+	private LinkedList<Node> goals; // the goal node
 	private int numNodesExpanded; // number of nodes expanded
 
 	// ALTHOUGH YOU ARE NOT REQUIRED TO, BUT IT IS
@@ -40,23 +39,52 @@ public class Search {
 	Search(State init_state) {
 		root = new Node(init_state, null, 0, -1, 0); // make the root node
 		fringe = new ArrayBlockingQueue<>(FRINGE_MAX_SIZE); // initialize Queue
+		closed = null;
+		n_closed = 0;
+		goals = new LinkedList<>();
+		int n = init_state.getN(), m = init_state.getM();
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < m; j++) {
+				if (init_state.getMap()[i][j] == 'T') {
+					State onGoal = new State(init_state);
+					onGoal.setX(i);
+					onGoal.setY(j);
+					goals.add(new Node(onGoal, null, -1, -1, -1)); // goal doesn't have actually path cost , depth or
+																	// specific action
+				}
+			}
+		}
+
 		fringeA = new PriorityQueue<>(FRINGE_MAX_SIZE, new Comparator<Node>() {
 
 			@Override
 			public int compare(Node o1, Node o2) {
-				if (o1.h_A_star() > o2.h_A_star())
-					return 0;
-				else
+				if (o1.h_A_star(getClosestGoal()) > o2.h_A_star(getClosestGoal()))
 					return 1;
+				else if (o1.h_A_star(getClosestGoal()) < o2.h_A_star(getClosestGoal()))
+					return -1;
+				else
+					return 0;
 			}
 		});
-		closed = null;
-		n_closed = 0;
-		goal = null;
 		numNodesExpanded = 0;
 
 		// ...
 
+	}
+
+	public Node getClosestGoal() {
+			Node minPathCost = goals.removeFirst();
+			goals.addLast(minPathCost);
+			for (int i = 0; i < goals.size() - 1; i++) {
+				if (!goals.isEmpty()) {
+				Node tmp = goals.removeFirst();
+				goals.addLast(tmp);
+				if (tmp.getPath_cost() < minPathCost.getPath_cost())
+					minPathCost = tmp;
+				}
+			}
+			return minPathCost;
 	}
 
 	// THIS METHOD INITIALIZES THE CLOSED LIST
@@ -103,6 +131,7 @@ public class Search {
 		fringe.offer(current);
 		while (!fringe.isEmpty()) {
 			current = fringe.poll();
+//			current.display();
 
 			if (current.isGoal()) {
 				return current;
@@ -131,6 +160,7 @@ public class Search {
 		fringeA.offer(current);
 		while (!fringeA.isEmpty()) {
 			current = fringeA.poll();
+//			 current.display();
 
 			if (current.isGoal()) {
 				return current;
@@ -149,23 +179,23 @@ public class Search {
 		return null; // goal not found
 	}
 
-	public State hill_climbing(){
-		Node current = root;
-		Node neighbor = random_move(current);
-		while(neighbor.h_A_star() > current.h_A_star()) {
-			if(neighbor.h_A_star() <= current.h_A_star())
-				return current.getState();
-			neighbor = random_move(current);
-		}
-		return neighbor.getState();
-	}
+	// public State hill_climbing(){
+	// Node current = root;
+	// Node neighbor = random_move(current);
+	// while(neighbor.getState() != null) {
+	// if(neighbor.h_A_star(goal) <= current.h_A_star(goal))
+	// return current.getState();
+	// neighbor = random_move(current);
+	// }
+	// return neighbor.getState();
+	// }
 
 	private Node random_move(Node n) {
 		Node[] nodes = n.expand();
 		boolean status_action = false;
-		int i = -1;
-		while (!status_action) {
-			 i = new Random().nextInt(nodes.length);
+		int i = new Random().nextInt(nodes.length);
+		while (nodes[i] == null && !status_action) {
+			i = new Random().nextInt(nodes.length);
 			switch (i) {
 			case 0:
 				status_action = nodes[i].getState().move_N();
@@ -232,13 +262,13 @@ public class Search {
 			System.out.println(sol[i]);
 	}
 
-	public Node getGoal() {
-		return goal;
-	}
-
-	public void setGoal(Node goal) {
-		this.goal = goal;
-	}
+	// public Node getGoal() {
+	// return goal;
+	// }
+	//
+	// public void setGoal(Node goal) {
+	// this.goal = goal;
+	// }
 
 	public int getNumNodesExpanded() {
 		return numNodesExpanded;

@@ -40,9 +40,9 @@ class Node {
 		for (int i = 0; i < 5; i++) { // create nodes
 			if (next_states[i] != null) {
 				if (this.parent != null)
-					next_nodes[i] = new Node(next_states[i], this, i, path_cost++, parent.depth + 1);// Path-Cost[s] ← Path-Cost[node] + Step-Cost(State[node],action result)
+					next_nodes[i] = new Node(next_states[i], this, i, parent.path_cost+1, parent.depth + 1);// have parent
 				else
-					next_nodes[i] = new Node(next_states[i], this, i, path_cost++, depth + 1);
+					next_nodes[i] = new Node(next_states[i], this, i, path_cost+1, depth + 1);
 			}
 		}
 		return next_nodes;
@@ -53,9 +53,7 @@ class Node {
 	public boolean isGoal() {
 		return state.foundTreasure();
 	}
-
-	// MANHATTAN DISTANCE HEURISTIC
-	public int h_md() {
+	public int Euclidean(Node goal) {
 		int x = 0;
 		int y = 0;
 		for (int i = 0; i < this.state.getN(); i++) {
@@ -66,12 +64,19 @@ class Node {
 				}
 			}
 		}
-		return (int) Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+		return (int) Math.sqrt(Math.pow(x - goal.state.getX(), 2) + Math.pow(y - goal.state.getY(), 2));
+	}
+	// MANHATTAN DISTANCE HEURISTIC
+	private int h_md(Node goal) {
+		return Math.abs(this.getState().getX() - goal.getState().getX()) + Math.abs(this.getState().getY() - goal.getState().getY());
 	}
 	// A* HEURISRIC 
-	public int h_A_star(){
-		return h_md() + path_cost;
+	public int h_A_star(Node goal){
+		return path_cost + h_md(goal);
  	}
+	public int key() {
+		return getState().getX() * 13 + getState().getY() * 17 + getState().getBattery() * 19;
+	}
 	// DISPLAY THE NODE'S INFO
 	public void display() {
 		state.display();

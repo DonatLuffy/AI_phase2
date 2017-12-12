@@ -123,20 +123,21 @@ public class State {
 	// METHOD THAT TELLS WHETHER THIS STATE IS EQUAL
 	// TO ANOTHER STATE.
 	public boolean equal(State s) {
-		int n = s.getN();
-		int m = s.getM();
-//		if (battery != s.battery)
+//		int n = s.getN();
+//		int m = s.getM();
+////		if (battery != s.battery)
+////			return false;
+//		if (N * M != n * m)
 //			return false;
-		if (N * M != n * m)
-			return false;
-		for (int i = 0; i < n; i++)
-			for (int j = 0; j < m; j++)
-				if (map[i][j] != s.getMap()[i][j])
-					return false;
-		if ((x == s.x) && (y == s.y))
-			return true;
-		else
-			return false;
+//		for (int i = 0; i < n; i++)
+//			for (int j = 0; j < m; j++)
+//				if (map[i][j] != s.getMap()[i][j])
+//					return false;
+//		if ((x == s.x) && (y == s.y))
+//			return true;
+//		else
+//			return false;
+		return ((x == s.x) && (y == s.y) && battery == s.battery);
 	}
 
 	// -----------------------------
@@ -224,12 +225,20 @@ public class State {
 
 	public boolean recharge() {
 		if(map[x][y] == 'D' || map[x][y] == 'E'){
-			battery = N*M;
+			battery = N+M;
 			return true;			
 		}
 		else
 			return false;
 	}
+	public void setX(int x) {
+		this.x = x;
+	}
+
+	public void setY(int y) {
+		this.y = y;
+	}
+
 	private void changeNextCell() {
 		switch (map[x][y]) {
 		case ' ':

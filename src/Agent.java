@@ -14,16 +14,42 @@ public class Agent {
 
 		//allstudents2.map.txt , simple2.map.txt
 		State s1 = new State("simple2.map.txt");
-		s1.setBattery(1000);
-		Node n1 = new Node(s1, null, 0, -1, 0);
+//		s1.setBattery(12);
+
+		Hashtable<Integer, Integer> h  =new Hashtable<>(10);
 //		s1.run("simple.map.command.txt", "finalMap.txt", "logsFile.txt");
 		Search s = new Search(s1);
 		Node n = s.A_star();
-		if(n != null)//this condition must be there, because may be the battrey is 
-		s.displaySolution(n);
-		System.out.println(s.getNumNodesExpanded());
-		
-		
+//		if(n != null)//this condition must be there, because may be the battrey is 
+//		s.displaySolution(n);
+		System.out.println(n.getPath_cost());
+//		
+		PriorityQueue<Node> p = new PriorityQueue<>(5, new Comparator<Node>() {
+
+			@Override
+			public int compare(Node o1, Node o2) {
+				if (o1.getPath_cost()  < o2.getPath_cost())
+					return -1;
+				else if(o1.getPath_cost() > o2.getPath_cost())
+					return 1;
+				else
+					return 0;
+			}
+		});
+		Node n1 = new Node(s1, null, 0, 0, 0);
+//		p.offer(n1);
+//		n1.getState().move_E();
+//		p.offer(n1);
+////		p.poll().display();
+//		Node nn[] = n1.expand();
+//		for(int i =0; i< nn.length;i++) {
+//			if(nn[i] != null) {
+//				p.offer(nn[i]);
+//				System.out.println(nn[i].getPath_cost());				
+//			}
+//		}
+//		System.out.println(p.poll().h_A_star(s.getClosestGoal()));
+
 		int n_args = args.length;
 		if (n_args!=5) {
 			System.out.println("ERROR: ILLEGAL NUMBER OF ARGUMENTS:");
