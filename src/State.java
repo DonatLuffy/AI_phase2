@@ -125,8 +125,8 @@ public class State {
 	public boolean equal(State s) {
 //		int n = s.getN();
 //		int m = s.getM();
-////		if (battery != s.battery)
-////			return false;
+//		if (battery != s.battery)
+//			return false;
 //		if (N * M != n * m)
 //			return false;
 //		for (int i = 0; i < n; i++)
@@ -138,6 +138,8 @@ public class State {
 //		else
 //			return false;
 		return ((x == s.x) && (y == s.y) && battery == s.battery);
+//		return ((x == s.x) && (y == s.y));
+
 	}
 
 	// -----------------------------
@@ -409,17 +411,9 @@ public class State {
 					writeLogs(log, "HOLE");
 				if (foundTreasure())
 					writeLogs(log, "GOAL");
-
 			}
 			in.close();
-			FileWriter f = new FileWriter(new File(finalMap));
-			for (int i = 0; i < N; i++) {
-				for (int j = 0; j < M; j++) {
-					f.write(map[i][j]);
-				}
-				f.write("\n");
-			}
-			f.close();
+			writeFinalMap(finalMap);
 		} catch (Exception e) {
 			System.out.println(e.getStackTrace());
 		}
@@ -430,5 +424,14 @@ public class State {
 		else
 			return false;
 	}
-
+	public void writeFinalMap(String finalMap) throws IOException {
+		FileWriter f = new FileWriter(new File(finalMap));
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < M; j++) {
+				f.write(map[i][j]);
+			}
+			f.write("\n");
+		}
+		f.close();
+	}
 }

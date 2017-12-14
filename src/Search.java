@@ -37,7 +37,7 @@ public class Search {
 	// CONSTRUCTOR 1:
 	// THIS CONSTRUCTOR WILL CREATE A SEARCH OBJECT.
 	Search(State init_state) {
-		root = new Node(init_state, null, 0, -1, 0); // make the root node
+		root = new Node(init_state, null, -1, 0, 0); // make the root node
 		fringe = new ArrayBlockingQueue<>(FRINGE_MAX_SIZE); // initialize Queue
 		closed = null;
 		n_closed = 0;
@@ -74,17 +74,17 @@ public class Search {
 	}
 
 	public Node getClosestGoal() {
-			Node minPathCost = goals.removeFirst();
-			goals.addLast(minPathCost);
-			for (int i = 0; i < goals.size() - 1; i++) {
-				if (!goals.isEmpty()) {
+		Node minPathCost = goals.removeFirst();
+		goals.addLast(minPathCost);
+		for (int i = 0; i < goals.size() - 1; i++) {
+			if (!goals.isEmpty()) {
 				Node tmp = goals.removeFirst();
 				goals.addLast(tmp);
 				if (tmp.getPath_cost() < minPathCost.getPath_cost())
 					minPathCost = tmp;
-				}
 			}
-			return minPathCost;
+		}
+		return minPathCost;
 	}
 
 	// THIS METHOD INITIALIZES THE CLOSED LIST
@@ -122,7 +122,7 @@ public class Search {
 	// THIS METHOD WILL DO THE SEARCH AND CAN
 	// RETURN THE GOAL NODE. YOU CAN EXTRACT
 	// THE SOLUTION BY FOLLOWING THE PARENT NODES
-	public Node doSearch() {
+	public Node BFS() {
 		initialize_closed();
 		numNodesExpanded = 0;
 		Node nodesList[];
@@ -131,8 +131,7 @@ public class Search {
 		fringe.offer(current);
 		while (!fringe.isEmpty()) {
 			current = fringe.poll();
-//			current.display();
-
+			
 			if (current.isGoal()) {
 				return current;
 			}
@@ -160,7 +159,6 @@ public class Search {
 		fringeA.offer(current);
 		while (!fringeA.isEmpty()) {
 			current = fringeA.poll();
-//			 current.display();
 
 			if (current.isGoal()) {
 				return current;
@@ -171,7 +169,6 @@ public class Search {
 				mark_as_visited(current);
 			for (int i = 0; i < 5; i++) { // we have 5 actions
 				if (nodesList[i] != null && !visited(nodesList[i])) {
-					mark_as_visited(nodesList[i]);
 					fringeA.offer(nodesList[i]);
 				}
 			}
@@ -179,41 +176,74 @@ public class Search {
 		return null; // goal not found
 	}
 
-	// public State hill_climbing(){
-	// Node current = root;
-	// Node neighbor = random_move(current);
-	// while(neighbor.getState() != null) {
-	// if(neighbor.h_A_star(goal) <= current.h_A_star(goal))
-	// return current.getState();
-	// neighbor = random_move(current);
-	// }
-	// return neighbor.getState();
-	// }
+	public State hill_climbing() {
+		Node current = root;
+		Node neighbor = highest_Valued_Successor(current);
+		while (-neighbor.Obj_fun(getClosestGoal()) <= -current.Obj_fun(getClosestGoal())) {
+			current = neighbor;
+			neighbor = highest_Valued_Successor(current);
+			if (current.Obj_fun(getClosestGoal()) == neighbor.Obj_fun(getClosestGoal()))
+				current = random_move(neighbor);
+		}
+		return current.getState();
+	}
+
+	private Node highest_Valued_Successor(Node current) {
+		numNodesExpanded = 0;
+		Node[] nodes = current.expand();
+		Node highest = current;
+		numNodesExpanded++;
+		for (int i = 1; i < nodes.length - 1; i++) {
+			if (nodes[i] != null) {
+				if (-nodes[i].Obj_fun(getClosestGoal()) <= -highest.Obj_fun(getClosestGoal())) {
+					highest = nodes[i];
+				}
+			}
+		}
+		return highest;
+	}
 
 	private Node random_move(Node n) {
 		Node[] nodes = n.expand();
+		numNodesExpanded++;
 		boolean status_action = false;
 		int i = new Random().nextInt(nodes.length);
-		while (nodes[i] == null && !status_action) {
-			i = new Random().nextInt(nodes.length);
+		while (!status_action && nodes[i] == null) {
 			switch (i) {
 			case 0:
-				status_action = nodes[i].getState().move_N();
+				if (nodes[i] != null)
+					status_action = nodes[i].getState().move_N();
+				if (status_action)
+					return nodes[i];
 				break;
 			case 1:
-				status_action = nodes[i].getState().move_S();
+				if (nodes[i] != null)
+					status_action = nodes[i].getState().move_S();
+				if (status_action)
+					return nodes[i];
 				break;
 			case 2:
-				status_action = nodes[i].getState().move_W();
+				if (nodes[i] != null)
+					status_action = nodes[i].getState().move_W();
+				if (status_action)
+					return nodes[i];
 				break;
 			case 3:
-				status_action = nodes[i].getState().move_E();
+				if (nodes[i] != null)
+					status_action = nodes[i].getState().move_E();
+				if (status_action)
+					return nodes[i];
 				break;
 			case 4:
-				status_action = nodes[i].getState().recharge();
+				if (nodes[i] != null)
+					status_action = nodes[i].getState().recharge();
+				if (status_action)
+					return nodes[i];
 				break;
 			}
+			i = new Random().nextInt(nodes.length);
 		}
+		nodes[i].display();
 		return nodes[i];
 	}
 
@@ -273,5 +303,14 @@ public class Search {
 	public int getNumNodesExpanded() {
 		return numNodesExpanded;
 	}
-
+	public void writeActions(String file,Node goal) throws IOException {
+		FileWriter f = new FileWriter(new File(file));
+//		String str = extractSolution(goal).toString();
+//		System.out.println(str);
+		String str[] = extractSolution(goal);
+		for(int i=0; i< str.length;i++)
+			f.write(str[i]+"\n");
+		
+		f.close();
+	}
 }

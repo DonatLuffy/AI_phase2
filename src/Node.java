@@ -39,9 +39,6 @@ class Node {
 		State next_states[] = state.successors();
 		for (int i = 0; i < 5; i++) { // create nodes
 			if (next_states[i] != null) {
-				if (this.parent != null)
-					next_nodes[i] = new Node(next_states[i], this, i, parent.path_cost+1, parent.depth + 1);// have parent
-				else
 					next_nodes[i] = new Node(next_states[i], this, i, path_cost+1, depth + 1);
 			}
 		}
@@ -74,8 +71,8 @@ class Node {
 	public int h_A_star(Node goal){
 		return path_cost + h_md(goal);
  	}
-	public int key() {
-		return getState().getX() * 13 + getState().getY() * 17 + getState().getBattery() * 19;
+	public int Obj_fun(Node goal) {
+		return -h_A_star(goal);
 	}
 	// DISPLAY THE NODE'S INFO
 	public void display() {
