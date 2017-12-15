@@ -12,60 +12,33 @@ public class Agent {
 
 	public static void main(String[] args) throws IOException {
 		// allstudents2.map.txt , simple2.map.txt
-//		State s1 = new State("allstudents2.map.txt");
-//		Search s = new Search(s1);
-//		System.out.println(s.getNumNodesExpanded());
-////		Node ns = new Node(s1, null, 0, 0, 0);
-////		ns.getState().move_S();
-////		System.out.println(ns.Obj_fun(s.getClosestGoal()));
-////		 s1.setBattery(12);
-//		// s1.run("simple.map.command.txt", "finalMap.txt", "logsFile.txt");
-//		long p = System.currentTimeMillis();
-//		Node n1 = s.BFS();
-////		Node n1 = s.A_star();
-//		long q = System.currentTimeMillis();
-////		System.out.println(q-p);
-////		 State ss =s.hill_climbing();
-////		 ss.display();
-////		if (n1 != null) // this condition must be there, because may be the battrey is
-////			s.displaySolution(n1);
-////		System.out.println("path cost: "+ n1.getPath_cost());
-////		System.out.println("depth of tree: " + n1.getDepth());
-//		System.out.println("# of nodes expaneded " + s.getNumNodesExpanded());
+
 		Scanner in = new Scanner(System.in);
-//		String str[] = new String[5];
-//		str[0] = in.next();
-//		str[1] = in.next();
-//		str[2] = in.next();
-//		str[3] = in.next();
-//		str[4] = in.next();
 
 		int na = in.nextInt();
-//		String MapFile = str[2];
-//		String actionsFile = str[3];
-//		String finalMapFile = str[4];
-		
 		// ... phase 2 code here ...
 		State state = new State("simple2.map.txt");
 		Search search = new Search(state);
-		Node n = null;
+		
 		long p,q;
 		switch(na) {
 		case 1:
 			 p = System.currentTimeMillis();
-			n = search.BFS();
+			Node bfs = search.BFS();
 			 q = System.currentTimeMillis();
-			System.out.println(q-p);
-			System.out.println(search.getNumNodesExpanded());
-			System.out.println(n.getPath_cost());
+			 search.displaySolution(bfs);
+			System.out.println("The time running: " + (q-p) + " milliseconds");
+			System.out.println("The number of nodes expanded: " + search.getNumNodesExpanded());
+			System.out.println("The path cost: " +bfs.getPath_cost());
 			break;
 		case 2:
 			 p = System.currentTimeMillis();
-			n = search.A_star();
+			Node astar = search.A_star();
 			 q = System.currentTimeMillis();
-			 System.out.println(q-p);
-				System.out.println(search.getNumNodesExpanded());
-				System.out.println(n.getPath_cost());
+			 search.displaySolution(astar);
+			 System.out.println("The time running: " + (q-p) + " milliseconds");
+				System.out.println("The number of nodes expanded: " + search.getNumNodesExpanded());
+				System.out.println("The path cost: " +astar.getPath_cost());
 			break;
 		case 3:
 			State hc = search.hill_climbing();

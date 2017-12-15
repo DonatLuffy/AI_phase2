@@ -17,9 +17,11 @@ public class Search {
 
 	// ATTRIBUTES:
 	private Node root; // the root node
+	private Node currentGlobal; // current node in the search
 	private Queue<Node> fringe; // the BFS frings: change it for the other searches.
 	private PriorityQueue<Node> fringeA;
 	private LinkedList<Node> goals; // the goal node
+	public int nGoals;
 	private int numNodesExpanded; // number of nodes expanded
 
 	// ALTHOUGH YOU ARE NOT REQUIRED TO, BUT IT IS
@@ -38,10 +40,12 @@ public class Search {
 	// THIS CONSTRUCTOR WILL CREATE A SEARCH OBJECT.
 	Search(State init_state) {
 		root = new Node(init_state, null, -1, 0, 0); // make the root node
+		currentGlobal = root;
 		fringe = new ArrayBlockingQueue<>(FRINGE_MAX_SIZE); // initialize Queue
 		closed = null;
 		n_closed = 0;
 		goals = new LinkedList<>();
+		nGoals = 0;
 		int n = init_state.getN(), m = init_state.getM();
 		for (int i = 0; i < n; i++) {
 			for (int j = 0; j < m; j++) {
@@ -50,7 +54,7 @@ public class Search {
 					onGoal.setX(i);
 					onGoal.setY(j);
 					goals.add(new Node(onGoal, null, -1, -1, -1)); // goal doesn't have actually path cost , depth or
-																	// specific action
+					nGoals++; // specific action
 				}
 			}
 		}
@@ -80,7 +84,8 @@ public class Search {
 			if (!goals.isEmpty()) {
 				Node tmp = goals.removeFirst();
 				goals.addLast(tmp);
-				if (tmp.getPath_cost() < minPathCost.getPath_cost())
+
+				if (currentGlobal.h_A_star(tmp) < currentGlobal.h_A_star(minPathCost))
 					minPathCost = tmp;
 			}
 		}
@@ -127,11 +132,12 @@ public class Search {
 		numNodesExpanded = 0;
 		Node nodesList[];
 		Node current = root;
+		currentGlobal = current;
 
 		fringe.offer(current);
 		while (!fringe.isEmpty()) {
 			current = fringe.poll();
-			
+
 			if (current.isGoal()) {
 				return current;
 			}
@@ -155,6 +161,7 @@ public class Search {
 		numNodesExpanded = 0;
 		Node nodesList[];
 		Node current = root;
+		currentGlobal = current;
 
 		fringeA.offer(current);
 		while (!fringeA.isEmpty()) {
@@ -169,6 +176,7 @@ public class Search {
 				mark_as_visited(current);
 			for (int i = 0; i < 5; i++) { // we have 5 actions
 				if (nodesList[i] != null && !visited(nodesList[i])) {
+					mark_as_visited(nodesList[i]);
 					fringeA.offer(nodesList[i]);
 				}
 			}
@@ -178,12 +186,14 @@ public class Search {
 
 	public State hill_climbing() {
 		Node current = root;
+		currentGlobal = current;
 		Node neighbor = highest_Valued_Successor(current);
-		while (-neighbor.Obj_fun(getClosestGoal()) <= -current.Obj_fun(getClosestGoal())) {
-			current = neighbor;
+
+		while (current.h_A_star(getClosestGoal()) <= neighbor.h_A_star(getClosestGoal())) {
 			neighbor = highest_Valued_Successor(current);
-			if (current.Obj_fun(getClosestGoal()) == neighbor.Obj_fun(getClosestGoal()))
-				current = random_move(neighbor);
+			current = neighbor;
+			currentGlobal = current;
+			current.display();
 		}
 		return current.getState();
 	}
@@ -200,7 +210,10 @@ public class Search {
 				}
 			}
 		}
-		return highest;
+		if (current.hasSameState(highest))
+			return random_move(current);
+		else
+			return highest;
 	}
 
 	private Node random_move(Node n) {
@@ -303,14 +316,15 @@ public class Search {
 	public int getNumNodesExpanded() {
 		return numNodesExpanded;
 	}
-	public void writeActions(String file,Node goal) throws IOException {
+
+	public void writeActions(String file, Node goal) throws IOException {
 		FileWriter f = new FileWriter(new File(file));
-//		String str = extractSolution(goal).toString();
-//		System.out.println(str);
+		// String str = extractSolution(goal).toString();
+		// System.out.println(str);
 		String str[] = extractSolution(goal);
-		for(int i=0; i< str.length;i++)
-			f.write(str[i]+"\n");
-		
+		for (int i = 0; i < str.length; i++)
+			f.write(str[i] + "\n");
+
 		f.close();
 	}
 }
